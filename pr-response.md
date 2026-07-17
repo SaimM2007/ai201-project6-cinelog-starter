@@ -26,9 +26,9 @@ Used AI as a devil's advocate on Comments 4 and 5 after writing my first drafts.
 **Engagement with reviewer's point:** I'm not disagreeing with the reasoning, I think it's right that most users want recency by default. Where I'd push back a little is on treating this as fully either/or. Defaulting to date-added covers the common case, but it doesn't have to mean the alternative gets thrown out entirely, it just shouldn't be the default anymore.
 
 ## Comment 6 — Rebase
-**What conflicted:**
-**How I resolved it:**
-**How I verified no conflict remains:**
+**What conflicted:** Running git rebase origin/main hit one real conflict: .gitignore, since both main and I had independently added one (mine from Milestone 1, main's from an earlier merged PR). Git flagged it as an add/add conflict. The actual UUID refactor didn't cause a text conflict since my WatchlistEntry model was added at the end of models.py while main's refactor touched the top of the file, so git merged them cleanly without flagging anything, even though the result was actually broken.
+**How I resolved it:** For the .gitignore conflict, I combined both versions since they didn't really disagree, main just had one extra line (.pytest_cache/) mine didn't. After resolving that, the rebase finished with no further conflicts, but running the test suite afterward showed an ImportError because my WatchlistEntry model had disappeared from models.py during the merge. I manually added it back in, this time with film_id typed as db.String(36) instead of db.Integer to match the new UUID Film.id, and set public to default False to match my Comment 4 decision. I also updated stale docstrings in watchlist_service.py and routes/watchlist/watchlist.py that still described film_id as an int, and changed the fake film id in test_watchlist.py from an integer to a UUID-shaped string so the test actually reflects the current schema instead of accidentally passing for the wrong reason.
+**How I verified no conflict remains:** Ran git log --oneline to confirm the branch is a clean linear history on top of main with no merge commits. Ran pytest tests/ -v and got all 5 tests passing.
 
 ## PR Description
 <!-- Written at the end — feature overview, design decisions, manual testing steps -->

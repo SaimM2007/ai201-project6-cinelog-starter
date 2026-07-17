@@ -30,5 +30,9 @@ Used AI as a devil's advocate on Comments 4 and 5 after writing my first drafts.
 **How I resolved it:** For the .gitignore conflict, I combined both versions since they didn't really disagree, main just had one extra line (.pytest_cache/) mine didn't. After resolving that, the rebase finished with no further conflicts, but running the test suite afterward showed an ImportError because my WatchlistEntry model had disappeared from models.py during the merge. I manually added it back in, this time with film_id typed as db.String(36) instead of db.Integer to match the new UUID Film.id, and set public to default False to match my Comment 4 decision. I also updated stale docstrings in watchlist_service.py and routes/watchlist/watchlist.py that still described film_id as an int, and changed the fake film id in test_watchlist.py from an integer to a UUID-shaped string so the test actually reflects the current schema instead of accidentally passing for the wrong reason.
 **How I verified no conflict remains:** Ran git log --oneline to confirm the branch is a clean linear history on top of main with no merge commits. Ran pytest tests/ -v and got all 5 tests passing.
 
+## Commit History Screenshot
+
+![git log output showing conventional commit history](commit_history.png)
+
 ## PR Description
 <!-- Written at the end — feature overview, design decisions, manual testing steps -->

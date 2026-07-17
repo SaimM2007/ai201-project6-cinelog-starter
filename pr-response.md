@@ -35,4 +35,24 @@ Used AI as a devil's advocate on Comments 4 and 5 after writing my first drafts.
 ![git log output showing conventional commit history](commit_history.png)
 
 ## PR Description
-<!-- Written at the end — feature overview, design decisions, manual testing steps -->
+## What this feature does
+
+Adds a watchlist feature to CineLog so users can save films they want to watch later, separate from their collection of films they've already watched. Includes a new WatchlistEntry model, service functions (add_to_watchlist, get_watchlist), and REST endpoints (GET /watchlist/<user_id>, POST /watchlist/<user_id>/add).
+
+## Design decisions
+
+**Default visibility (public field):** Watchlists default to private (public=False) rather than public. This optimizes for users who haven't made an active choice about visibility yet, since a watchlist can reveal personal taste or mood, and most users won't check privacy settings before adding films. Users who want the social/discovery benefit can opt in by setting public=True explicitly. The tradeoff is reduced organic discovery if few users flip the toggle, but I'd rather have a smaller number of users opt in on purpose than expose everyone by default.
+
+**Sort order:** get_watchlist() defaults to date-added order (most recent first) rather than alphabetical, per the reviewer's preference, since most users want to see what they added recently. Alphabetical sorting is still valuable once a list grows large enough that finding a specific title by scrolling becomes tedious, so this isn't strictly either/or, date-added is the default, with alphabetical available as an option for larger lists.
+
+## How to manually test
+
+1. Start the app: `python app.py`
+2. Create a user and film via the existing endpoints (or use the test fixtures as a reference for the expected shape).
+3. Add a film to a user's watchlist: 
+curl -X POST http://127.0.0.1:5000/watchlist/<user_id>/add -H "Content-Type: application/json" -d "{"film_id": "<film_id>"}"
+4. View the watchlist:
+curl http://127.0.0.1:5000/watchlist/<user_id>
+5. Try adding the same film twice, confirm the second request returns an error instead of creating a duplicate entry.
+6. Try adding a film_id that doesn't exist, confirm a FilmNotFoundError-style response instead of a server crash.
+7. Run the automated test suite: `pytest tests/ -v`, all 5 tests should pass.
